@@ -13,16 +13,36 @@ let count = 0;
 let panel: HTMLParagraphElement | null = null;
 let panelUpdates = 0;
 
+type ShieldSnapshot = {
+  charge: number;
+  capacity: number;
+  missing: number;
+};
+
+function getShieldSnapshot(): ShieldSnapshot {
+  return {
+    charge: count,
+    capacity: 10,
+    missing: 10 - count,
+  };
+}
+
 function drawMeter() {
+  const snapshot = getShieldSnapshot();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let i = 0; i < 10; i++) {
-    ctx.fillStyle = i < count ? "#27766b" : "#c9d2c9";
+  for (let i = 0; i < snapshot.capacity; i++) {
+    ctx.fillStyle = i < snapshot.charge ? "#27766b" : "#c9d2c9";
     ctx.fillRect(12 + i * 28, 24, 24, 48);
   }
   ctx.fillStyle = "#233e43";
   ctx.font = "16px system-ui";
-  ctx.fillText(`${count} / 10 shield`, 12, 100);
-  readout.textContent = `Shield charge: ${count} / 10`;
+  ctx.fillText(
+    `${snapshot.charge} / ${snapshot.capacity} shield`,
+    12,
+    100,
+  );
+  readout.textContent =
+    `Shield charge: ${snapshot.charge} / ${snapshot.capacity}`;
 }
 
 function updateStats() {
@@ -33,7 +53,9 @@ function updateStats() {
 
 function renderStats() {
   if (!panel) return;
-  panel.textContent = `Shield charge: ${count} · Missing charge: ${10 - count}`;
+  const snapshot = getShieldSnapshot();
+  panel.textContent =
+    `Shield charge: ${snapshot.charge} · Missing charge: ${snapshot.missing}`;
 }
 
 function setCount(next: number) {
