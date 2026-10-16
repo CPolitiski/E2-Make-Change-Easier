@@ -9,6 +9,7 @@ const host = document.querySelector<HTMLDivElement>("#counter-panel-host")!;
 const diagnostic = document.querySelector<HTMLParagraphElement>(
   "#counter-diagnostic",
 )!;
+const shieldEvents = new EventTarget();
 let count = 0;
 let panel: HTMLParagraphElement | null = null;
 let panelUpdates = 0;
@@ -62,9 +63,13 @@ function setCount(next: number) {
   const bounded = Math.max(0, Math.min(10, next));
   if (bounded === count) return;
   count = bounded;
-  drawMeter();
+  shieldEvents.dispatchEvent(new Event("shieldchange"));
   if (panel) updateStats();
 }
+
+shieldEvents.addEventListener("shieldchange", () => {
+  drawMeter();
+});
 
 document.querySelector<HTMLButtonElement>("#counter-less")!.onclick = () => {
   setCount(count - 1);
