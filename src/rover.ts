@@ -16,6 +16,7 @@ function drawRover() {
       ctx.strokeRect(10 + column * 56, 10 + row * 56, 56, 56);
     }
   }
+
   ctx.save();
   ctx.translate(38 + x * 56, 38 + y * 56);
   ctx.rotate(direction * Math.PI / 2);

@@ -2,50 +2,93 @@ export {};
 
 const canvas = document.querySelector<HTMLCanvasElement>("#allocation-canvas")!;
 const ctx = canvas.getContext("2d")!;
-const readout = document.querySelector<HTMLParagraphElement>(
-  "#allocation-readout",
-)!;
-let n = 2;
 
-function u() {
-  const p = n * 3;
-  const c = 6;
-  const b = p - c;
+let producers = 2;
+
+type ShiftResults = {
+  producers: number;
+  production: number;
+  consumption: number;
+  balance: number;
+};
+
+function calculateShift(producers: number): ShiftResults {
+  const production = producers * 3;
+  const consumption = 6;
+  const balance = production - consumption;
+
+  return {
+    producers,
+    production,
+    consumption,
+    balance,
+  };
+}
+
+type ResourceDisplay = {
+  label: string;
+  value: number;
+  color: string;
+};
+
+function display() {
+  const results = calculateShift(producers);
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   for (let i = 0; i < 6; i++) {
-    ctx.fillStyle = i < n ? "#27766b" : "#c9d2c9";
+    ctx.fillStyle = i < results.producers ? "#27766b" : "#c9d2c9";
     ctx.fillRect(18 + i * 45, 16, 36, 36);
-    ctx.fillStyle = i < n ? "#ffffff" : "#233e43";
+    ctx.fillStyle = i < results.producers ? "#ffffff" : "#233e43";
     ctx.font = "16px system-ui";
     ctx.fillText(String(i + 1), 31 + i * 45, 40);
   }
-  ctx.fillStyle = "#233e43";
-  ctx.font = "14px system-ui";
-  ctx.fillText(`Producers: ${n} / 6`, 18, 76);
-  ctx.fillText(`Production: ${p}`, 18, 102);
-  ctx.fillStyle = "#27766b";
-  ctx.fillRect(18, 110, p * 14, 20);
-  ctx.fillStyle = "#233e43";
-  ctx.fillText(`Consumption: ${c}`, 18, 154);
-  ctx.fillStyle = "#a44d23";
-  ctx.fillRect(18, 162, c * 14, 20);
-  readout.textContent =
-    `Assigned: ${n}/6 · Production: ${p} · Consumption: ${c} · Balance: ${
-      b > 0 ? "+" : ""
-    }${b}`;
+
+  const resources: ResourceDisplay[] = [
+    {
+      label: "Production",
+      value: results.production,
+      color: "#27766b",
+    },
+    {
+      label: "Consumption",
+      value: results.consumption,
+      color: "#a44d23",
+    },
+  ];
+
+  resources.forEach((resource, index) => {
+    const labelY = 102 + index * 52;
+    const barY = labelY + 8;
+
+    ctx.fillStyle = "#233e43";
+    ctx.fillText(
+      `${resource.label}: ${resource.value}`,
+      18,
+      labelY,
+    );
+
+    ctx.fillStyle = resource.color;
+    ctx.fillRect(
+      18,
+      barY,
+      resource.value * 14,
+      20,
+    );
+  });
 }
 
 document.querySelector<HTMLButtonElement>("#allocation-less")!.onclick = () => {
-  n = Math.max(0, n - 1);
-  u();
+  producers = Math.max(0, producers - 1);
+  display();
 };
 document.querySelector<HTMLButtonElement>("#allocation-more")!.onclick = () => {
-  n = Math.min(6, n + 1);
-  u();
+  producers = Math.min(6, producers + 1);
+  display();
 };
 document.querySelector<HTMLButtonElement>("#allocation-reset")!.onclick =
   () => {
-    n = 2;
-    u();
+    producers = 2;
+    display();
   };
-u();
+display();
